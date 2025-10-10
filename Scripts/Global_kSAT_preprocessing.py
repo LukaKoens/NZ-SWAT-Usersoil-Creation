@@ -13,10 +13,18 @@ def preprocess_ksat_data(sol_ksat_df, outlier_threshold=2000):
 
     ## convert the field capacity and permant wilt point to avaliable water capacity then drop them
     sol_ksat_training_set["awc"] = (sol_ksat_training_set["w3cld"] - sol_ksat_training_set["w15l2"])
+
+
+    print(sol_ksat_training_set["ksat_lab"].mean())
+    sol_ksat_training_set["ksat_lab"] = ( sol_ksat_training_set["ksat_lab"] * 10 ) / 24.0 
+
     sol_ksat_training_set = sol_ksat_training_set.drop(columns=["w3cld","w15l2"])
+
+    print(sol_ksat_training_set["ksat_lab"].mean())
 
     ## Remove extereme outliers
     sol_ksat_training_set = sol_ksat_training_set[sol_ksat_training_set["ksat_lab"] < outlier_threshold]
+
 
     ## Rename the columns to match the NSD dataset
     sol_ksat_training_set.rename(columns={

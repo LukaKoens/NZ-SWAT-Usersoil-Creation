@@ -61,22 +61,8 @@ class NSD_preprocessor():
         self.output["matrix_value"] = pd.to_numeric(self.output["matrix_value"], errors="coerce")
         self.output["matrix_value"] = self.output["matrix_value"].fillna(0)
         
-        temp_mapping = self.hrzn_1[["matrix_chroma", "sd_horizon_id"]].set_index("sd_horizon_id").to_dict()["matrix_chroma"]
-        self.output["matrix_chroma"] = self.output["sd_horizon_id"].map(temp_mapping)
-
-        self.output["matrix_chroma"] = self.output["matrix_chroma"].str.replace(r"[;,/]", ",", regex=True)
-        self.output["matrix_chroma"] = self.output["matrix_chroma"].str.split(",").str[0]
-
-        self.output["matrix_chroma"] = pd.to_numeric(self.output["matrix_chroma"], errors="coerce")
-        self.output["matrix_chroma"] = self.output["matrix_chroma"].fillna(0)
-
-        self.output["CLR_alb"] = self.output["matrix_value"].astype(int) / self.output["matrix_chroma"].astype(int)
-        
-        # Convert to float, set invalid to NaN
-        self.output["CLR_alb"] = pd.to_numeric(self.output["CLR_alb"], errors="coerce")
-        self.output["CLR_alb"] = self.output["CLR_alb"].replace(np.nan, 0)
-        self.output["CLR_alb"] = self.output["CLR_alb"].replace(np.inf, 0)
-
+        ## Caluculate Soil Albedo based on matrix value
+        self.output["CLR_alb"] = self.output["matrix_value"].apply(lambda x: 0.069 * int(x) - 0.114 if x != 0 else 0.13)
 
         temp_mapping = self.soil[["classifier_nz_genetic", "sd_soil_id"]].set_index("sd_soil_id").to_dict()["classifier_nz_genetic"]
         self.output["classifer_nz_genetic"] = self.output["sd_soil_id"].map(temp_mapping)
@@ -605,7 +591,7 @@ def ConvertNSD_To_ML_readable(data):
     processed = processed.drop(columns=["profiledrainage"])
     
     processed = ML_preprocessor.preprocess_matrix_color(processed)
-    processed = processed.drop(columns=["matrix_hue", "matrix_value", "matrix_chroma"])
+    processed = processed.drop(columns=["matrix_hue", "matrix_value"])
         
     processed = ML_preprocessor.preprocess_genetic_keywords(processed)
     processed = processed.drop(columns=["classifer_nz_genetic"])   
