@@ -4,7 +4,7 @@ import numpy as np
 import ydf
 
 
-def Predict_data(full_usable_data, sol_ksat_set):
+def Predict_data(full_usable_data, sol_ksat_set, return_models = False):
     
     ## Define the inital and then secondary columns that I'll be trying to predict
     # for the secondary prediction targets, the results from the first prediction will be included
@@ -64,6 +64,7 @@ def Predict_data(full_usable_data, sol_ksat_set):
     ksat_model = ydf.GradientBoostedTreesLearner(label="ksat_lab", task=ydf.Task.REGRESSION).train(sol_ksat_set)
     full_data_filled['ksat'] = ksat_model.predict(predicted_nsd)
 
-
+    if return_models:
+        return cl_model, si_model,sa_model, rk_model, bsd_model, awc_model, ksat_model
     return full_data_filled
 
